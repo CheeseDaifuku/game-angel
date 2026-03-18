@@ -12,15 +12,7 @@
       overflow:hidden;
     }
 
-    /* 月 */
-    #moon{
-      position:absolute; top:60px; right:80px;
-      width:120px; height:120px;
-      background:radial-gradient(circle,#fff,#ddd 60%,transparent 70%);
-      border-radius:50%;
-      box-shadow:0 0 40px rgba(255,255,255,0.6);
-      opacity:0.9;
-    }
+    
 
     /* 建物（レイヤー1） */
     .city{
@@ -85,10 +77,10 @@
     @keyframes walk{ from{background-position:0 0;} to{background-position:-256px 0;} } to{background-position:-256px 0;} }
 
     .feather{
-      position:absolute; width:30px; height:30px;
+      position:absolute; width:32px; height:32px;
       background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 5 C70 20, 90 40, 70 75 C60 90,40 90,30 75 C10 40,30 20,50 5 Z' fill='white'/><path d='M50 5 L50 95' stroke='red' stroke-width='2'/></svg>");
       background-size:contain; background-repeat:no-repeat;
-      filter:drop-shadow(0 0 6px white) drop-shadow(0 0 12px red);
+      filter:drop-shadow(0 0 8px white) drop-shadow(0 0 14px red);
       animation:float 2s ease-in-out infinite alternate;
     }
 
@@ -124,7 +116,7 @@
 </div>
 
 <div id="game">
-  <div id="moon"></div>
+  
   <div class="city">
     <div class="building b1"></div>
     <div class="building b3"></div>
