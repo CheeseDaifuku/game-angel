@@ -4,240 +4,161 @@
   <meta charset="UTF-8">
   <title>堕天使の羽集めゲーム</title>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: "Hiragino Kaku Gothic ProN", sans-serif;
-      background: radial-gradient(circle at center, #1a0000, #000000);
-      color: white;
-    }
+    body { margin:0; overflow:hidden; font-family:"Hiragino Kaku Gothic ProN", sans-serif; background:radial-gradient(circle at center,#1a0000,#000); color:#fff; }
+    #game { position:relative; width:100vw; height:100vh; display:none; }
 
-    #game {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: none;
-    }
-
-    /* 天使っぽく：光輪＋羽っぽさ */
     #player {
-      position: absolute;
-      width: 64px;
-      height: 64px;
-      background-image: url("fallen_angel_walk.png");
-      background-size: 256px 64px;
-      filter: drop-shadow(0 0 10px red);
-      animation: walk 0.6s steps(4) infinite;
-      animation-play-state: paused;
+      position:absolute; width:64px; height:64px;
+      background-image:url("fallen_angel_walk.png");
+      background-size:256px 64px;
+      filter:drop-shadow(0 0 12px red);
+      animation:walk 0.6s steps(4) infinite;
+      animation-play-state:paused;
     }
 
-    /* 光輪（赤い天使リング） */
-    #player::before {
-      content: "";
-      position: absolute;
-      top: -10px;
-      left: 12px;
-      width: 40px;
-      height: 10px;
-      border: 2px solid red;
-      border-radius: 50%;
-      box-shadow: 0 0 10px red;
+    #player::before{
+      content:""; position:absolute; top:-12px; left:10px;
+      width:44px; height:12px; border:2px solid red; border-radius:50%;
+      box-shadow:0 0 12px red; transform:rotate(-10deg); opacity:0.8;
     }
 
-    @keyframes walk {
-      from { background-position: 0 0; }
-      to { background-position: -256px 0; }
+    #player::after{
+      content:""; position:absolute; top:10px; left:-30px;
+      width:120px; height:50px;
+      background:radial-gradient(circle at left,rgba(0,0,0,0.9),transparent 70%),
+                 radial-gradient(circle at right,rgba(0,0,0,0.9),transparent 70%);
+      filter:blur(1px) drop-shadow(0 0 10px red);
+      z-index:-1;
     }
 
-    /* 羽をより羽っぽく */
-    .feather {
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      background: radial-gradient(ellipse at center, white 30%, red 70%);
-      clip-path: polygon(
-        50% 0%,
-        65% 20%,
-        80% 50%,
-        65% 80%,
-        50% 100%,
-        35% 80%,
-        20% 50%,
-        35% 20%
-      );
-      box-shadow: 0 0 12px white, 0 0 20px red;
-      animation: float 2s ease-in-out infinite alternate;
+    @keyframes walk{ from{background-position:0 0;} to{background-position:-256px 0;} }
+
+    .feather{
+      position:absolute; width:28px; height:28px;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 5 C70 20, 90 40, 70 70 C60 85,40 85,30 70 C10 40,30 20,50 5 Z' fill='white'/><path d='M50 5 L50 95' stroke='red' stroke-width='2'/></svg>");
+      background-size:contain; background-repeat:no-repeat;
+      filter:drop-shadow(0 0 6px white) drop-shadow(0 0 12px red);
+      animation:float 2s ease-in-out infinite alternate;
+    }
+    @keyframes float{ from{transform:translateY(0);} to{transform:translateY(-10px) rotate(5deg);} }
+
+    #ui{ position:fixed; top:10px; left:10px; display:none; }
+    #instruction{ position:fixed; top:40px; left:10px; font-size:14px; opacity:0.8; display:none; }
+    #goal{ position:fixed; bottom:20px; right:20px; background:red; padding:10px 20px; border-radius:10px; display:none; }
+
+    #story, #ending{
+      position:fixed; width:100%; height:100%; background:rgba(0,0,0,0.95);
+      display:flex; justify-content:center; align-items:center; text-align:center; flex-direction:column;
+    }
+    #ending{ display:none; }
+
+    /* フェード演出 */
+    #fade {
+      position:fixed; width:100%; height:100%; background:white;
+      opacity:0; pointer-events:none;
+      transition:opacity 2s;
     }
 
-    @keyframes float {
-      from { transform: translateY(0px); }
-      to { transform: translateY(-10px); }
-    }
+    #startBtn{ margin-top:20px; padding:10px 20px; background:red; border:none; color:#fff; border-radius:10px; cursor:pointer; }
 
-    #ui {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      font-size: 18px;
-      display: none;
-    }
-
-    #instruction {
-      position: fixed;
-      top: 40px;
-      left: 10px;
-      font-size: 14px;
-      opacity: 0.8;
-      display: none;
-    }
-
-    #goal {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      background: red;
-      border-radius: 10px;
-      display: none;
-    }
-
-    #story {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.95);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      flex-direction: column;
-      padding: 20px;
-    }
-
-    #story p {
-      max-width: 600px;
-      line-height: 1.8;
-      font-size: 18px;
-    }
-
-    #startBtn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: red;
-      border: none;
-      color: white;
-      font-size: 16px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+    #ending img{ width:300px; margin-top:20px; filter:drop-shadow(0 0 20px white); }
   </style>
 </head>
 <body>
 
 <div id="story">
   <h1>堕天使の記憶</h1>
-  <p>
-    かつて天に仕えていた一人の天使は、
-    禁忌に触れたことで地上へと堕とされた──。<br><br>
-
-    空へ戻るための翼は砕け、
-    羽はこの世界に散らばってしまった。<br><br>
-
-    闇に染まったその身で、
-    再び空へ還ることはできるのか。
-  </p>
+  <p>禁忌に触れ、地上へ堕とされた天使。<br>散らばった羽を集め、再び空へ──</p>
   <button id="startBtn">羽を探す</button>
 </div>
 
-<div id="game">
-  <div id="player"></div>
-</div>
+<div id="game"><div id="player"></div></div>
 
 <div id="ui">羽: <span id="count">0</span>/5</div>
-<div id="instruction">
-  【操作】矢印キーで移動<br>
-  【目的】羽をすべて集めて天空へ戻る
-</div>
+<div id="instruction">【操作】矢印キー / Shiftでダッシュ</div>
 <div id="goal">天空へ戻れる…</div>
 
+<div id="ending">
+  <h1>天使は還る</h1>
+  <p>光に包まれ、彼は空へ昇っていく──</p>
+  <img src="angel_end.png">
+</div>
+
+<div id="fade"></div>
+
 <script>
-  const player = document.getElementById("player");
-  const game = document.getElementById("game");
-  const countText = document.getElementById("count");
-  const goal = document.getElementById("goal");
-  const story = document.getElementById("story");
-  const startBtn = document.getElementById("startBtn");
+const player=document.getElementById("player");
+const game=document.getElementById("game");
+const countText=document.getElementById("count");
+const goal=document.getElementById("goal");
+const story=document.getElementById("story");
+const ending=document.getElementById("ending");
+const fade=document.getElementById("fade");
 
-  let x = 100;
-  let y = 100;
-  let count = 0;
+let x=100,y=100,count=0;
+let dash=false;
 
-  const speed = 5;
+function updatePlayer(){ player.style.left=x+"px"; player.style.top=y+"px"; }
 
-  function updatePlayer() {
-    player.style.left = x + "px";
-    player.style.top = y + "px";
-  }
+document.addEventListener("keydown",e=>{
+  if(game.style.display==="none")return;
+  if(e.key==="Shift") dash=true;
 
-  document.addEventListener("keydown", (e) => {
-    if (game.style.display === "none") return;
+  player.style.animationPlayState="running";
+  let s=dash?10:5;
 
-    player.style.animationPlayState = "running";
+  if(e.key==="ArrowUp") y-=s;
+  if(e.key==="ArrowDown") y+=s;
+  if(e.key==="ArrowLeft") x-=s;
+  if(e.key==="ArrowRight") x+=s;
 
-    if (e.key === "ArrowUp") y -= speed;
-    if (e.key === "ArrowDown") y += speed;
-    if (e.key === "ArrowLeft") x -= speed;
-    if (e.key === "ArrowRight") x += speed;
+  updatePlayer(); checkCollision();
+});
 
-    updatePlayer();
-    checkCollision();
+document.addEventListener("keyup",e=>{
+  if(e.key==="Shift") dash=false;
+  player.style.animationPlayState="paused";
+});
+
+function createFeather(){
+  const f=document.createElement("div");
+  f.classList.add("feather");
+  f.style.left=Math.random()*(window.innerWidth-30)+"px";
+  f.style.top=Math.random()*(window.innerHeight-30)+"px";
+  game.appendChild(f);
+}
+
+function checkCollision(){
+  document.querySelectorAll(".feather").forEach(f=>{
+    if(Math.abs(x-f.offsetLeft)<30 && Math.abs(y-f.offsetTop)<30){
+      f.remove(); count++; countText.textContent=count;
+      if(count===5){ goal.style.display="block"; setTimeout(startFade,1000); }
+    }
   });
+}
 
-  document.addEventListener("keyup", () => {
-    player.style.animationPlayState = "paused";
-  });
+function startFade(){
+  fade.style.opacity=1;
+  setTimeout(showEnding,2000);
+}
 
-  function createFeather() {
-    const feather = document.createElement("div");
-    feather.classList.add("feather");
+function showEnding(){
+  game.style.display="none";
+  document.getElementById("ui").style.display="none";
+  document.getElementById("instruction").style.display="none";
+  ending.style.display="flex";
+}
 
-    feather.style.left = Math.random() * (window.innerWidth - 20) + "px";
-    feather.style.top = Math.random() * (window.innerHeight - 20) + "px";
+for(let i=0;i<5;i++) createFeather();
 
-    game.appendChild(feather);
-  }
+document.getElementById("startBtn").onclick=()=>{
+  story.style.display="none";
+  game.style.display="block";
+  document.getElementById("ui").style.display="block";
+  document.getElementById("instruction").style.display="block";
+};
 
-  function checkCollision() {
-    const feathers = document.querySelectorAll(".feather");
-
-    feathers.forEach(f => {
-      const fx = f.offsetLeft;
-      const fy = f.offsetTop;
-
-      if (Math.abs(x - fx) < 30 && Math.abs(y - fy) < 30) {
-        f.remove();
-        count++;
-        countText.textContent = count;
-
-        if (count === 5) {
-          goal.style.display = "block";
-        }
-      }
-    });
-  }
-
-  for (let i = 0; i < 5; i++) {
-    createFeather();
-  }
-
-  startBtn.addEventListener("click", () => {
-    story.style.display = "none";
-    game.style.display = "block";
-    document.getElementById("ui").style.display = "block";
-    document.getElementById("instruction").style.display = "block";
-  });
-
-  updatePlayer();
+updatePlayer();
 </script>
 
 </body>
