@@ -8,16 +8,30 @@ body{margin:0;overflow:hidden;background:#000;color:#fff;font-family:sans-serif;
 
 #game{position:relative;width:100vw;height:100vh;display:none;overflow:hidden;}
 
-/* 背景エリア */
 .area{position:absolute;width:100%;height:100%;top:0;left:0;display:none;}
-
-#city{background:linear-gradient(#02030a,#0a0f2a);}
+#hub{background:linear-gradient(#000,#111);} /* 最初の拠点 */
+#city{background:linear-gradient(#02030a,#0a0f2a);} 
 #sky{background:linear-gradient(#000428,#004e92);} 
 #sea{background:linear-gradient(#001f3f,#003f7f);} 
-
 .active{display:block;}
 
-/* プレイヤー */
+/* ポータル（場所画像） */
+.portal{
+ position:absolute;width:120px;height:80px;
+ border:2px solid #fff;border-radius:10px;
+ background-size:cover;background-position:center;
+ filter:brightness(0.8);
+ transition:0.2s;
+}
+.portal.near{
+ transform:scale(1.2);
+ filter:brightness(1.2) drop-shadow(0 0 10px white);
+}
+
+#p_city{left:20%;top:60%;background-image:url('https://picsum.photos/200/120?city');}
+#p_sky{left:45%;top:40%;background-image:url('https://picsum.photos/200/120?sky');}
+#p_sea{left:70%;top:65%;background-image:url('https://picsum.photos/200/120?sea');}
+
 #player{
  position:absolute;width:64px;height:80px;
  background:url("fallen_angel_walk.png") no-repeat;
@@ -26,10 +40,8 @@ body{margin:0;overflow:hidden;background:#000;color:#fff;font-family:sans-serif;
  animation:walk 0.6s steps(4) infinite;
  animation-play-state:paused;
 }
-
 @keyframes walk{from{background-position:0}to{background-position:-256px}}
 
-/* 羽 */
 .feather{
  position:absolute;width:34px;height:34px;
  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 5 C70 20,90 40,70 75 C60 90,40 90,30 75 C10 40,30 20,50 5 Z' fill='white'/><path d='M50 5 L50 95' stroke='red' stroke-width='2'/></svg>");
@@ -37,16 +49,12 @@ body{margin:0;overflow:hidden;background:#000;color:#fff;font-family:sans-serif;
  filter:brightness(1.6) drop-shadow(0 0 12px white) drop-shadow(0 0 20px red);
  transition:0.2s;
 }
-
-.feather.near{
- transform:scale(1.6);
- filter:brightness(2) drop-shadow(0 0 18px white) drop-shadow(0 0 30px red);
-}
+.feather.near{transform:scale(1.6);filter:brightness(2) drop-shadow(0 0 18px white) drop-shadow(0 0 30px red);} 
 
 #ui{position:fixed;top:10px;left:10px;display:none;}
 #instruction{position:fixed;top:40px;left:10px;display:none;font-size:14px;}
 
-#story,#ending{position:fixed;width:100%;height:100%;background:#000;display:flex;justify-content:center;align-items:center;flex-direction:column;text-align:center;}
+#story,#ending{position:fixed;width:100%;height:100%;background:#000;display:flex;justify-content:center;align-items:center;flex-direction:column;text-align:center;z-index:10;}
 #ending{display:none;}
 
 #fade{position:fixed;width:100%;height:100%;background:white;opacity:0;transition:2s;}
@@ -61,14 +69,19 @@ body{margin:0;overflow:hidden;background:#000;color:#fff;font-family:sans-serif;
 </div>
 
 <div id="game">
-<div id="city" class="area active"></div>
+<div id="hub" class="area active">
+  <div id="p_city" class="portal" data-target="city"></div>
+  <div id="p_sky" class="portal" data-target="sky"></div>
+  <div id="p_sea" class="portal" data-target="sea"></div>
+</div>
+<div id="city" class="area"></div>
 <div id="sky" class="area"></div>
 <div id="sea" class="area"></div>
 <div id="player"></div>
 </div>
 
 <div id="ui">羽: <span id="count">0</span>/15</div>
-<div id="instruction">矢印キー移動 / Shiftダッシュ / Zでエリア切替</div>
+<div id="instruction">矢印キー移動 / Shiftダッシュ</div>
 
 <div id="ending">
 <h1>天へ還る</h1>
@@ -79,22 +92,22 @@ body{margin:0;overflow:hidden;background:#000;color:#fff;font-family:sans-serif;
 
 <script>
 const player=document.getElementById("player");
-const areas=document.querySelectorAll(".area");
-let current=0;
+const areas={hub:document.getElementById("hub"),city:document.getElementById("city"),sky:document.getElementById("sky"),sea:document.getElementById("sea")};
+let current='hub';
 let x=100,y=100,count=0,dash=false;
 
 function update(){player.style.left=x+"px";player.style.top=y+"px";}
 
-function switchArea(){
+function moveArea(name){
  areas[current].classList.remove("active");
- current=(current+1)%areas.length;
+ current=name;
  areas[current].classList.add("active");
+ x=100;y=100;update();
 }
 
 document.addEventListener("keydown",e=>{
  if(document.getElementById("game").style.display==="none")return;
  if(e.key==="Shift")dash=true;
- if(e.key==="z"||e.key==="Z")switchArea();
  player.style.animationPlayState="running";
  let s=dash?10:5;
  if(e.key==="ArrowUp")y-=s;
@@ -117,11 +130,14 @@ function createFeather(area){
  area.appendChild(f);
 }
 
-areas.forEach(area=>{
- for(let i=0;i<5;i++)createFeather(area);
+Object.values(areas).forEach(area=>{
+ if(area.id!=='hub'){
+  for(let i=0;i<5;i++)createFeather(area);
+ }
 });
 
 function check(){
+ // 羽
  document.querySelectorAll(".active .feather").forEach(f=>{
   let dx=x-f.offsetLeft,dy=y-f.offsetTop;
   let d=Math.sqrt(dx*dx+dy*dy);
@@ -130,6 +146,16 @@ function check(){
    if(count===15)setTimeout(end,1000);
   }
  });
+
+ // ポータル（hubのみ）
+ if(current==='hub'){
+  document.querySelectorAll('.portal').forEach(p=>{
+    let dx=x-p.offsetLeft,dy=y-p.offsetTop;
+    let d=Math.sqrt(dx*dx+dy*dy);
+    if(d<120)p.classList.add('near'); else p.classList.remove('near');
+    if(d<40)moveArea(p.dataset.target);
+  });
+ }
 }
 
 function end(){
