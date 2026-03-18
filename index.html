@@ -80,9 +80,15 @@
       position:absolute; width:34px; height:34px;
       background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 5 C70 20, 90 40, 70 75 C60 90,40 90,30 75 C10 40,30 20,50 5 Z' fill='white'/><path d='M50 5 L50 95' stroke='red' stroke-width='2'/></svg>");
       background-size:contain; background-repeat:no-repeat;
-      /* 見やすさ強化：発光を強く＋明るさUP */
-      filter:brightness(1.4) drop-shadow(0 0 10px white) drop-shadow(0 0 18px red);
-      animation:float 2s ease-in-out infinite alternate, glow 1.5s ease-in-out infinite alternate;
+      /* 最初から見えるように強め発光 */
+      filter:brightness(1.6) drop-shadow(0 0 12px white) drop-shadow(0 0 20px red);
+      transition:transform 0.2s, filter 0.2s;
+    }
+
+    .feather.near{
+      /* 近づいたら大きく＋さらに発光 */
+      transform:scale(1.6);
+      filter:brightness(2) drop-shadow(0 0 18px white) drop-shadow(0 0 28px red);
     }
 
     @keyframes glow{
@@ -193,9 +199,24 @@ function createFeather(){
 
 function checkCollision(){
   document.querySelectorAll(".feather").forEach(f=>{
-    if(Math.abs(x-f.offsetLeft)<30 && Math.abs(y-f.offsetTop)<30){
+    const dx = x - f.offsetLeft;
+    const dy = y - f.offsetTop;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+
+    // 近づいたら強調
+    if(dist < 120){
+      f.classList.add("near");
+    } else {
+      f.classList.remove("near");
+    }
+
+    // 取得判定
+    if(dist < 30){
       f.remove(); count++; countText.textContent=count;
       if(count===5){ goal.style.display="block"; setTimeout(startFade,1000); }
+    }
+  });
+}
     }
   });
 }
