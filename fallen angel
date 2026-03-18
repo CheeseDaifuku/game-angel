@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>堕天使の羽集めゲーム</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: "Hiragino Kaku Gothic ProN", sans-serif;
+      background: radial-gradient(circle at center, #1a0000, #000000);
+      color: white;
+    }
+
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #player {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(45deg, black, red);
+      border-radius: 50%;
+      box-shadow: 0 0 15px red;
+    }
+
+    .feather {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(white, red);
+      border-radius: 50%;
+      box-shadow: 0 0 10px white;
+    }
+
+    #ui {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-size: 18px;
+    }
+
+    #goal {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: red;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game">
+  <div id="player"></div>
+</div>
+
+<div id="ui">羽: <span id="count">0</span>/5</div>
+<div id="goal">天空へ戻れる…</div>
+
+<script>
+  const player = document.getElementById("player");
+  const game = document.getElementById("game");
+  const countText = document.getElementById("count");
+  const goal = document.getElementById("goal");
+
+  let x = 100;
+  let y = 100;
+  let count = 0;
+
+  const speed = 5;
+
+  function updatePlayer() {
+    player.style.left = x + "px";
+    player.style.top = y + "px";
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") y -= speed;
+    if (e.key === "ArrowDown") y += speed;
+    if (e.key === "ArrowLeft") x -= speed;
+    if (e.key === "ArrowRight") x += speed;
+
+    updatePlayer();
+    checkCollision();
+  });
+
+  function createFeather() {
+    const feather = document.createElement("div");
+    feather.classList.add("feather");
+
+    feather.style.left = Math.random() * (window.innerWidth - 20) + "px";
+    feather.style.top = Math.random() * (window.innerHeight - 20) + "px";
+
+    game.appendChild(feather);
+  }
+
+  function checkCollision() {
+    const feathers = document.querySelectorAll(".feather");
+
+    feathers.forEach(f => {
+      const fx = f.offsetLeft;
+      const fy = f.offsetTop;
+
+      if (Math.abs(x - fx) < 20 && Math.abs(y - fy) < 20) {
+        f.remove();
+        count++;
+        countText.textContent = count;
+
+        if (count === 5) {
+          goal.style.display = "block";
+        }
+      }
+    });
+  }
+
+  for (let i = 0; i < 5; i++) {
+    createFeather();
+  }
+
+  updatePlayer();
+</script>
+
+</body>
+</html>
