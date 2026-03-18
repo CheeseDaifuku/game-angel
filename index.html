@@ -19,17 +19,29 @@
       display: none;
     }
 
-    /* プレイヤー（スプライトアニメーション） */
+    /* 天使っぽく：光輪＋羽っぽさ */
     #player {
       position: absolute;
       width: 64px;
       height: 64px;
-      background-image: url("fallen_angel_walk.png"); /* 横に並んだ歩行画像 */
-      background-size: 256px 64px; /* 64px×4コマ想定 */
-      image-rendering: pixelated;
+      background-image: url("fallen_angel_walk.png");
+      background-size: 256px 64px;
       filter: drop-shadow(0 0 10px red);
       animation: walk 0.6s steps(4) infinite;
       animation-play-state: paused;
+    }
+
+    /* 光輪（赤い天使リング） */
+    #player::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      width: 40px;
+      height: 10px;
+      border: 2px solid red;
+      border-radius: 50%;
+      box-shadow: 0 0 10px red;
     }
 
     @keyframes walk {
@@ -37,13 +49,29 @@
       to { background-position: -256px 0; }
     }
 
+    /* 羽をより羽っぽく */
     .feather {
       position: absolute;
-      width: 20px;
-      height: 20px;
-      background: linear-gradient(white, red);
-      border-radius: 50%;
-      box-shadow: 0 0 10px white;
+      width: 24px;
+      height: 24px;
+      background: radial-gradient(ellipse at center, white 30%, red 70%);
+      clip-path: polygon(
+        50% 0%,
+        65% 20%,
+        80% 50%,
+        65% 80%,
+        50% 100%,
+        35% 80%,
+        20% 50%,
+        35% 20%
+      );
+      box-shadow: 0 0 12px white, 0 0 20px red;
+      animation: float 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes float {
+      from { transform: translateY(0px); }
+      to { transform: translateY(-10px); }
     }
 
     #ui {
@@ -145,7 +173,6 @@
   let count = 0;
 
   const speed = 5;
-  let moving = false;
 
   function updatePlayer() {
     player.style.left = x + "px";
@@ -155,7 +182,6 @@
   document.addEventListener("keydown", (e) => {
     if (game.style.display === "none") return;
 
-    moving = true;
     player.style.animationPlayState = "running";
 
     if (e.key === "ArrowUp") y -= speed;
@@ -168,7 +194,6 @@
   });
 
   document.addEventListener("keyup", () => {
-    moving = false;
     player.style.animationPlayState = "paused";
   });
 
