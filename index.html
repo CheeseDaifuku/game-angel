@@ -6,73 +6,89 @@
   <style>
     body { margin:0; overflow:hidden; font-family:"Hiragino Kaku Gothic ProN", sans-serif; color:#fff; }
 
-    /* 夜の海外都市っぽい背景 */
     #game {
       position:relative; width:100vw; height:100vh; display:none;
       background:linear-gradient(#02030a, #0a0f2a);
       overflow:hidden;
     }
 
-    /* 建物シルエット（遠景） */
-    #game::before{
-      content:"";
-      position:absolute; bottom:0; width:100%; height:40%;
-      background:repeating-linear-gradient(
-        to right,
-        #05070f 0px, #05070f 40px,
-        #0a0f2a 40px, #0a0f2a 80px
-      );
-      clip-path:polygon(
-        0% 100%, 0% 40%, 5% 55%, 10% 35%, 15% 60%, 20% 30%, 25% 65%,
-        30% 40%, 35% 70%, 40% 35%, 45% 60%, 50% 30%, 55% 65%,
-        60% 40%, 65% 75%, 70% 35%, 75% 60%, 80% 30%, 85% 70%,
-        90% 45%, 95% 65%, 100% 40%, 100% 100%
-      );
-      opacity:0.8;
+    /* 月 */
+    #moon{
+      position:absolute; top:60px; right:80px;
+      width:120px; height:120px;
+      background:radial-gradient(circle,#fff,#ddd 60%,transparent 70%);
+      border-radius:50%;
+      box-shadow:0 0 40px rgba(255,255,255,0.6);
+      opacity:0.9;
     }
 
-    /* 窓の光 */
-    #game::after{
+    /* 建物（レイヤー1） */
+    .city{
+      position:absolute; bottom:0; width:100%; height:45%;
+      display:flex; align-items:flex-end;
+      gap:4px;
+    }
+
+    .building{
+      width:40px;
+      background:#05070f;
+      position:relative;
+    }
+
+    /* ランダム高さっぽく見せる */
+    .b1{height:60%;}
+    .b2{height:80%;}
+    .b3{height:50%;}
+    .b4{height:70%;}
+    .b5{height:90%;}
+
+    /* 窓 */
+    .building::after{
       content:"";
-      position:absolute; bottom:0; width:100%; height:40%;
+      position:absolute; width:100%; height:100%;
       background-image:radial-gradient(#ffd700 1px, transparent 1px);
-      background-size:20px 20px;
-      opacity:0.2;
+      background-size:12px 12px;
+      opacity:0.25;
     }
 
+    /* プレイヤー（人っぽさ強化） */
     #player {
       position:absolute; width:64px; height:64px;
       background-image:url("fallen_angel_walk.png");
       background-size:256px 64px;
-      filter:drop-shadow(0 0 12px red);
+      filter:brightness(0) drop-shadow(0 0 12px red);
       animation:walk 0.6s steps(4) infinite;
       animation-play-state:paused;
     }
 
+    /* 光輪 */
     #player::before{
-      content:""; position:absolute; top:-12px; left:10px;
-      width:44px; height:12px; border:2px solid red; border-radius:50%;
-      box-shadow:0 0 12px red; transform:rotate(-10deg); opacity:0.8;
+      content:""; position:absolute; top:-14px; left:8px;
+      width:48px; height:14px; border:2px solid red; border-radius:50%;
+      box-shadow:0 0 15px red;
+      transform:rotate(-15deg);
     }
 
+    /* 翼（人っぽく） */
     #player::after{
-      content:""; position:absolute; top:10px; left:-30px;
-      width:120px; height:50px;
+      content:""; position:absolute; top:8px; left:-35px;
+      width:130px; height:60px;
       background:radial-gradient(circle at left,rgba(0,0,0,0.9),transparent 70%),
                  radial-gradient(circle at right,rgba(0,0,0,0.9),transparent 70%);
-      filter:blur(1px) drop-shadow(0 0 10px red);
+      filter:blur(1px) drop-shadow(0 0 12px red);
       z-index:-1;
     }
 
     @keyframes walk{ from{background-position:0 0;} to{background-position:-256px 0;} }
 
     .feather{
-      position:absolute; width:28px; height:28px;
-      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 5 C70 20, 90 40, 70 70 C60 85,40 85,30 70 C10 40,30 20,50 5 Z' fill='white'/><path d='M50 5 L50 95' stroke='red' stroke-width='2'/></svg>");
+      position:absolute; width:30px; height:30px;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 5 C70 20, 90 40, 70 75 C60 90,40 90,30 75 C10 40,30 20,50 5 Z' fill='white'/><path d='M50 5 L50 95' stroke='red' stroke-width='2'/></svg>");
       background-size:contain; background-repeat:no-repeat;
       filter:drop-shadow(0 0 6px white) drop-shadow(0 0 12px red);
       animation:float 2s ease-in-out infinite alternate;
     }
+
     @keyframes float{ from{transform:translateY(0);} to{transform:translateY(-10px) rotate(5deg);} }
 
     #ui{ position:fixed; top:10px; left:10px; display:none; }
@@ -104,7 +120,21 @@
   <button id="startBtn">羽を探す</button>
 </div>
 
-<div id="game"><div id="player"></div></div>
+<div id="game">
+  <div id="moon"></div>
+  <div class="city">
+    <div class="building b1"></div>
+    <div class="building b3"></div>
+    <div class="building b2"></div>
+    <div class="building b4"></div>
+    <div class="building b5"></div>
+    <div class="building b2"></div>
+    <div class="building b3"></div>
+    <div class="building b4"></div>
+    <div class="building b1"></div>
+  </div>
+  <div id="player"></div>
+</div>
 
 <div id="ui">羽: <span id="count">0</span>/5</div>
 <div id="instruction">【操作】矢印キー / Shiftでダッシュ</div>
